@@ -4,7 +4,6 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:AlgorithmVisualiser.Pages"
-      mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="660"
       Title="Bubble Sort"
       Background="#EEEEEE">
@@ -35,12 +34,12 @@
 
                 <!-- Load elements from file button-->
                 <Button Content="Load" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,12,0" Padding="4,2,4,2" Click="LoadElements" x:Name="LoadButton"/>
-
+ 
                 <!-- Perform sort button-->
                 <Button Content="Sort" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,12,0" Padding="4,2,4,2" Click="SortElements" x:Name="SortButton"/>
 
-                <Label VerticalAlignment="Center" Margin="0,0,12,0">Big O Average: O(n^2)</Label>
-                <Label VerticalAlignment="Center" x:Name="TimeToFinish">Time:</Label>
+                <Label HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,12,0">Big O: O(n^2)</Label>
+                <Label HorizontalAlignment="Right" VerticalAlignment="Center" x:Name="TimeToFinish">Time:</Label>
             </StackPanel>
         </Border>
 
