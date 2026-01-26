@@ -1,0 +1,52 @@
+﻿<Page x:Class="AlgorithmVisualiser.Pages.BubbleSortPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:AlgorithmVisualiser.Pages"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="660"
+      Title="Bubble Sort"
+      Background="#EEEEEE">
+    
+    <Grid>
+        <!-- Define grid row dimensions -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="0"/>
+        </Grid.RowDefinitions>
+
+        <!-- Border for a solid background and child elements -->
+        <Border Grid.Row="0" Background="#999999" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                <!-- Generate elements button -->
+                <Button Content="Generate Elements" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="12,0,12,0" Padding="4,2,4,2" Click="GenerateElements" x:Name="GenerateButton"/>
+
+                <!-- Inputs & Labls -->
+                <StackPanel Margin="0,0,12,5" VerticalAlignment="Center">
+                    <Label HorizontalAlignment="Center">Elements</Label>
+                    <TextBox HorizontalAlignment="Center" Text="15" Width="60" TextAlignment="Center" x:Name="ElementInput"/>
+                </StackPanel>
+                <StackPanel Margin="0,0,12,5" VerticalAlignment="Center">
+                    <Label HorizontalAlignment="Center">Delay</Label>
+                    <TextBox HorizontalAlignment="Center" Width="60" Text="200" TextAlignment="Center" x:Name="DelayInput"/>
+                </StackPanel>
+
+                <!-- Load elements from file button-->
+                <Button Content="Load" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,12,0" Padding="4,2,4,2" Click="LoadElements" x:Name="LoadButton"/>
+
+                <!-- Perform sort button-->
+                <Button Content="Sort" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,12,0" Padding="4,2,4,2" Click="SortElements" x:Name="SortButton"/>
+
+                <Label VerticalAlignment="Center" Margin="0,0,12,0">Big O Average: O(n^2)</Label>
+                <Label VerticalAlignment="Center" x:Name="TimeToFinish">Time:</Label>
+            </StackPanel>
+        </Border>
+
+        <Canvas Grid.Row="1" Background="#777777" x:Name="Display">
+
+        </Canvas>
+
+    </Grid>
+</Page>
