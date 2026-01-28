@@ -16,6 +16,7 @@ namespace AlgorithmVisualiser
     {
         public string BigO { get; set; }
         public abstract void SortElements(List<Rectangle> elements);
+        public abstract long TimeSort(List<Rectangle> elements);
 
     }
 
@@ -37,6 +38,19 @@ namespace AlgorithmVisualiser
             {
                 
             }
+
+            // Timed regular sort
+            public override long TimeSort(List<Rectangle> elements)
+            {
+                // Store time in ms to time the sort
+                long startTime = DateTime.UtcNow.Millisecond;
+
+                // TODO: SORT HERE 
+
+                // Time when algorithm finished (ms) subtract start time (ms) = time taken (ms)
+                return DateTime.UtcNow.Millisecond - startTime;
+            }
+
         }
 
         class InsertionSort : Sort
@@ -51,6 +65,12 @@ namespace AlgorithmVisualiser
             public override void SortElements(List<Rectangle> elements)
             {
 
+            }
+
+            // Timed regular sort
+            public override long TimeSort(List<Rectangle> elements)
+            {
+                return 0;
             }
         }
     }

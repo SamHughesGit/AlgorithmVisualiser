@@ -22,20 +22,38 @@ namespace AlgorithmVisualiser.Pages
             InitializeComponent();
         }
 
-        // On LoadElements button clicked
-        void LoadElements()
-        {
+        Rectangle[] rects;
 
+        // On LoadElements button clicked
+        void LoadElements(object sender, RoutedEventArgs e)
+        {            
+            // Clear all elements from the canvas
+            Display.Children.Clear();
+
+            // Load rects from file
+            rects = InputManager.GenerateRectsFromData(Display, InputManager.LoadFromFile(), Color.FromRgb(46, 46, 46));
         }
 
         // On GenerateElements button clicked
-        void GenerateElements()
+        void GenerateElements(object sender, RoutedEventArgs e)
         {
+            // Clear all elements from the canvas
+            Display.Children.Clear();
 
+            // Input validation
+            if (int.TryParse(ElementInput.Text, out int elements)) 
+            {
+                // Get random rects
+                rects = InputManager.GenerateRandomRects(Display, Convert.ToInt32(ElementInput.Text), Color.FromRgb(46, 46, 46));
+            }
+            else // Fail validation, display error
+            {
+                MessageBox.Show("Invalid data input", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         // On SortElements button clicked
-        void SortElements()
+        void SortElements(object sender, RoutedEventArgs e)
         {
 
         }
