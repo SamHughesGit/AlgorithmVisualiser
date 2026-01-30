@@ -12,7 +12,7 @@ using System.ComponentModel;
 
 namespace AlgorithmVisualiser
 {
-    // Base clas sorters derive from
+    // Base class sorters derive from
     public abstract class Sort
     {
         public string BigO { get; set; }
@@ -52,13 +52,13 @@ namespace AlgorithmVisualiser
                 // Flag to check if the elements are sorted early
                 bool swap = false;
 
-                // Optomised so that after each pass, the last element in the previous pass is skipped
+                // Optimised so that after each pass, the last element in the previous pass is removed from the next pas
                 // Therefore reducing the number of passes by 1 per pass
                 for(int i = 0; i < elements.Count - 1; i++)
                 {
                     // Reset swap flag every pass
                     swap = false;
-                    for(int j = 0; j < elements.Count - i - i; j++)
+                    for(int j = 0; j < elements.Count - i - 1; j++)
                     {
                         int currentVal = elements[j].Height;
                         int nextVal = elements[j + 1].Height;
