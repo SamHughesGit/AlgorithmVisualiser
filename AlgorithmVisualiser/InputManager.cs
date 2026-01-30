@@ -118,7 +118,7 @@ namespace AlgorithmVisualiser
             // Calculate rectangle width
             double width = (canvas.ActualWidth / elementCount) - gap;
 
-            // Prevent <1 widths
+            // Prevent < 1 pixel widths
             if (width < 1) return null;
 
             // New random
