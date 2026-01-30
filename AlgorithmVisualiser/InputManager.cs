@@ -19,10 +19,10 @@ namespace AlgorithmVisualiser
             // Filter for text files (name|extension)
             dialog.Filter = "Text files|*.txt";
 
-            // If user clicks open on file
+            // If user selects a file
             if (dialog.ShowDialog() == true)
             {
-                // Get file name
+                // Get file path
                 string path = dialog.FileName;
 
                 try 
@@ -38,7 +38,7 @@ namespace AlgorithmVisualiser
                 catch (Exception e) // Catch error opening file
                 {
                     // Error pop up, ok box + error symbol
-                    MessageBox.Show($"Error reading file", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Error reading file", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
 
@@ -79,7 +79,7 @@ namespace AlgorithmVisualiser
         // Convert int array to array of rectangle objects
         public static Rectangle[] GenerateRectsFromData(Canvas canvas, int[] data, Color color)
         {
-            // Gap of 1px
+            // Gap of 1px between bars
             int gap = 1;
 
             // Calculate rectangle width
@@ -157,7 +157,7 @@ namespace AlgorithmVisualiser
             int targetMax = (int)(canvas.ActualHeight - 10);
             int targetMin = 5;
 
-            // Map value in range of canvas size
+            // Map value into range of canvas size
             return targetMin + (val - dataMin) * (targetMax - targetMin) / (dataMax - dataMin);
         }
     }
