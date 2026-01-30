@@ -108,3 +108,11 @@ namespace AlgorithmVisualiser.Pages
         }
     }
 }
+
+///
+/// TODO: FIX EXPORT FROM HEIGHT, THIS EXPORTS THE MAPPED VALUE, THATS BAD WE NEED THE ORIGINAL
+///
+
+///
+/// TODO: MORE ALGORITHMS, COMPARE GRAPH <-- THIS IS PRIORITY
+///
