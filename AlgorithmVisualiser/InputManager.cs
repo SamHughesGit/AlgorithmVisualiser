@@ -11,7 +11,7 @@ namespace AlgorithmVisualiser
 {
     static class InputManager
     {
-        public static int[] LoadFromFile()
+        public static async Task<int[]> LoadFromFile()
         {
             // Open new file dialog popup
             OpenFileDialog dialog = new OpenFileDialog();
@@ -72,13 +72,15 @@ namespace AlgorithmVisualiser
                 }
             }
 
-            // Return result
             return result;
         }
 
         // Convert int array to array of rectangle objects
         public static Rectangle[] GenerateRectsFromData(Canvas canvas, int[] data, Color color)
         {
+            // If no data return early
+            if(data == null) { return null; }
+
             // Gap of 1px between bars
             int gap = 1;
 
@@ -86,7 +88,14 @@ namespace AlgorithmVisualiser
             double width = (canvas.ActualWidth / data.Length) - gap;
 
             // Prevent <1 widths
-            if (width < 1) return null;
+            if (width < 1)
+            {
+                if (MessageBox.Show("There are too many elements to display, would you still like to sort them?", "Warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                {
+                    return null;
+                }
+                width = 0.1;
+            }
 
             Rectangle[] rects = new Rectangle[data.Length];
 
@@ -97,10 +106,13 @@ namespace AlgorithmVisualiser
                 rect.Height = MapRange(data[i], data.Min(), data.Max(), canvas);
                 rect.Width = width;
                 rect.Fill = new SolidColorBrush(color);
-                // Dynamically place
-                Canvas.SetLeft(rect, width * i + gap * i + 1);
-                Canvas.SetBottom(rect, 0);
-                canvas.Children.Add(rect);
+                if (!(width < 1))
+                {
+                    // Dynamically place
+                    Canvas.SetLeft(rect, width * i + gap * i + 1);
+                    Canvas.SetBottom(rect, 0);
+                    canvas.Children.Add(rect);
+                }
                 rects[i] = rect;
             }
 
@@ -119,7 +131,7 @@ namespace AlgorithmVisualiser
             double width = (canvas.ActualWidth / elementCount) - gap;
 
             // Prevent < 1 pixel widths
-            if (width < 1) return null;
+            if (width < 1) { return null; }
 
             // New random
             Random rng = new Random();
