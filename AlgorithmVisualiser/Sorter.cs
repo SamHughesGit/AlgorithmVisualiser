@@ -18,8 +18,8 @@ namespace AlgorithmVisualiser
     public abstract class Sort
     {
         public string BigO { get; set; }
-        public abstract Task<long> SortElements(Rectangle[] elements, Color baseColor, int delay);
-        public abstract long TimeSort(Rectangle[] elements);
+        public abstract Task<(long, int[])> SortElements(Rectangle[] elements, int[] vals, Color baseColor, int delay);
+        public abstract long TimeSort(ref int[] vals);
 
     }
 
@@ -61,11 +61,12 @@ namespace AlgorithmVisualiser
                 this.BigO = "O(n^2)";
             }
 
-            // Perform the actual sort
-            public override async Task<long> SortElements(Rectangle[] elements, Color baseColor, int delay)
+            // Perform the actual visual sort on the rectangle elements
+            // Returns a long (time) and int array (values)
+            public override async Task<(long, int[])> SortElements(Rectangle[] elements, int[] vals, Color baseColor, int delay)
             {
-                if(elements == null) { return -1; }
-                if(elements.Length == 1) { return -1; }
+                if(elements == null || vals == null) { return (-1, vals); }
+                if(elements.Length == 1 || vals.Length == 1) { return (-1, vals); }
 
                 this.baseColor = new SolidColorBrush(baseColor);
 
@@ -74,13 +75,13 @@ namespace AlgorithmVisualiser
                 // If width < 1, no visual sort
                 if (elements[0].Width < 1)
                 {
-                    sortTime = TimeSort(elements);
-                    return sortTime;
+                    sortTime = TimeSort(ref vals);
+                    return (sortTime, vals);
                 }
                 else
                 {
                     Rectangle[] sorted = elements.ToArray();
-                    sortTime = TimeSort(sorted);
+                    sortTime = TimeSort(ref vals);
                 }
 
                 // Flag to check early sort
@@ -107,9 +108,15 @@ namespace AlgorithmVisualiser
                             // Swap elements using a temp variable to prevent overwriting value
                             await SwapElementPos(elements[j], elements[j + 1], delay);
 
+                            // Swap in rect array
                             Rectangle temp = elements[j];
                             elements[j] = elements[j + 1];
                             elements[j + 1] = temp;
+
+                            // Swap in vals array
+                            int val = vals[j];
+                            vals[j] = vals[j + 1];
+                            vals[j + 1] = val;
 
                             // Since a swap is performed, toggle flag
                             swap = true;
@@ -118,14 +125,14 @@ namespace AlgorithmVisualiser
                         await SetColors(elements[j..(j + 2)], this.baseColor, delay);
                     }
 
-                    if (!swap) return sortTime;
+                    if (!swap) return (sortTime, vals);
                 }
 
-                return sortTime;
+                return (sortTime,vals);
             }
 
-            // Timed regular sort
-            public override long TimeSort(Rectangle[] elements)
+            // Timed regular sort (also modifies the array it was invoked with, hence sorting the elements)
+            public override long TimeSort(ref int[] elements)
             {
                 // Start timing
                 Stopwatch sw = new Stopwatch();
@@ -142,14 +149,14 @@ namespace AlgorithmVisualiser
                     swap = false;
                     for(int j = 0; j < elements.Length - i - 1; j++)
                     {
-                        double currentVal = elements[j].Height;
-                        double nextVal = elements[j + 1].Height;
+                        double currentVal = elements[j];
+                        double nextVal = elements[j + 1];
                         
                         // If next element < current, swap
                         if(nextVal < currentVal)
                         {
                             // Swap elements using a temp variable to prevent overwriting value
-                            Rectangle temp = elements[j];
+                            int temp = elements[j];
                             elements[j] = elements[j+1];
                             elements[j + 1] = temp;
 
@@ -176,13 +183,13 @@ namespace AlgorithmVisualiser
             }
 
             // Perform the actual sort
-            public override async Task<long> SortElements(Rectangle[] elements, Color baseColor, int delay)
+            public override async Task<(long, int[])> SortElements(Rectangle[] elements, int[] vals, Color baseColor, int delay)
             {
-                return 0;
+                return (-1, null);
             }
 
             // Timed regular sort
-            public override long TimeSort(Rectangle[] elements)
+            public override long TimeSort(ref int[] vals)
             {
                 return 0;
             }

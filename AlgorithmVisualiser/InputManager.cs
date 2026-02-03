@@ -120,9 +120,10 @@ namespace AlgorithmVisualiser
         }
 
         // Generate random rectangles
-        public static Rectangle[] GenerateRandomRects(Canvas canvas, int elementCount, Color color)
+        public static (Rectangle[]?, int[]?) GenerateRandomRects(Canvas canvas, int elementCount, Color color)
         {
             Rectangle[] rects = new Rectangle[elementCount];
+            int[] vals = new int[elementCount];
 
             // Gap of 1px
             int gap = 1;
@@ -131,7 +132,7 @@ namespace AlgorithmVisualiser
             double width = (canvas.ActualWidth / elementCount) - gap;
 
             // Prevent < 1 pixel widths
-            if (width < 1) { return null; }
+            if (width < 1) { return (null, null); }
 
             // New random
             Random rng = new Random();
@@ -158,9 +159,10 @@ namespace AlgorithmVisualiser
                 Canvas.SetBottom(rect, 0);
                 canvas.Children.Add(rect);
                 rects[i] = rect;
+                vals[i] = randomValue;
             }
 
-            return rects;
+            return (rects, vals);
         }        
 
         // Map range of data set to pixel size

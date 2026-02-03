@@ -27,7 +27,9 @@ namespace AlgorithmVisualiser.Pages
             sorter = new Sorter.BubbleSort();
         }
 
-        Rectangle[] rects;
+        Rectangle[]? rects;
+        int[]? vals;
+
         Color baseColor = Color.FromRgb(46, 46, 46);
 
         // On LoadElements button clicked
@@ -36,8 +38,9 @@ namespace AlgorithmVisualiser.Pages
             // Clear all elements from the canvas
             Display.Children.Clear();
 
-            // Load rects from file
-            rects = InputManager.GenerateRectsFromData(Display, await InputManager.LoadFromFile(), baseColor);
+            // Load values from file & generate rectanlges from them
+            vals = await InputManager.LoadFromFile();
+            rects = InputManager.GenerateRectsFromData(Display, vals, baseColor);
 
             // MessageBox.Show($"{rects.Length} elements loaded", "Loaded!", MessageBoxButton.OK, MessageBoxImage.Information);
         }
@@ -52,7 +55,7 @@ namespace AlgorithmVisualiser.Pages
             if (int.TryParse(ElementInput.Text, out int elements)) 
             {
                 // Get random rects
-                rects = InputManager.GenerateRandomRects(Display, Convert.ToInt32(ElementInput.Text), baseColor);
+                (rects, vals) = InputManager.GenerateRandomRects(Display, Convert.ToInt32(ElementInput.Text), baseColor);
 
                 if(rects == null)
                 {
@@ -73,7 +76,9 @@ namespace AlgorithmVisualiser.Pages
                 // Disable button to prevent double-clicking
                 SortButton.IsEnabled = false;
 
-                long time = await sorter.SortElements(rects, baseColor, delay);
+                long time;
+                // Returns time to sort in ms and list of sorted values
+                (time, vals) = await sorter.SortElements(rects, vals, baseColor, delay);
 
                 SortButton.IsEnabled = true;
 
@@ -95,7 +100,7 @@ namespace AlgorithmVisualiser.Pages
                     try // Try write file
                     {
                         // Convert rect array into string of heights seperated by comma
-                        string output = string.Join(", ", rects.Select(r => r.Height.ToString()).ToArray());
+                        string output = string.Join(", ", vals);
 
                         File.WriteAllText(System.IO.Path.Combine(path, "output.txt"), output);
                     }
