@@ -26,7 +26,7 @@ namespace AlgorithmVisualiser
     static class Sorter
     {
         // List of pages for dynamically creating buttons
-        static public List<Page> pages = new List<Page> { new BubbleSortPage() };
+        static public List<Page> pages = new List<Page> { new BubbleSortPage(), new InsertionSortPage() };
 
         // Set color of a list of elements
         static public async Task SetColors(Rectangle[] items, SolidColorBrush color, int delay)
@@ -41,10 +41,24 @@ namespace AlgorithmVisualiser
         // Swap visual positions
         static public async Task SwapElementPos(Rectangle a, Rectangle b, int delay)
         {
-            double tempPos = Canvas.GetLeft(a);
-            Canvas.SetLeft(a, Canvas.GetLeft(b));
-            Canvas.SetLeft(b, tempPos);
-            await Task.Delay(delay);
+            double bDesired = Canvas.GetLeft(a);
+            double aDesired = Canvas.GetLeft(b);
+            double difference = Math.Abs(aDesired - bDesired);
+            int steps = 20;
+            double step = difference / steps;
+            int time = (int)((aDesired - bDesired) / step);
+
+            double aPos = Canvas.GetLeft(a);
+            double bPos = Canvas.GetLeft(b);
+            while (Math.Abs(aPos - aDesired) >= step || Math.Abs(bPos - bDesired) >= step)
+            {
+                aPos = Canvas.GetLeft(a);
+                bPos = Canvas.GetLeft(b);
+                Canvas.SetLeft(a, aPos + (aPos < aDesired?step:-step));
+                Canvas.SetLeft(b, bPos + (bPos < bDesired?step:-step));
+                await Task.Delay(time);
+            }
+            
         }
 
         public class BubbleSort : Sort
@@ -176,6 +190,12 @@ namespace AlgorithmVisualiser
 
         public class InsertionSort : Sort
         {
+            // Color vars
+            private SolidColorBrush checkColor = new SolidColorBrush(Color.FromRgb(56, 65, 235));
+            private SolidColorBrush swapColor = new SolidColorBrush(Color.FromRgb(222, 104, 89));
+            private SolidColorBrush correctColor = new SolidColorBrush(Color.FromRgb(143, 204, 102));
+            private SolidColorBrush baseColor;
+
             // Constructor 
             public InsertionSort()
             {
@@ -185,7 +205,71 @@ namespace AlgorithmVisualiser
             // Perform the actual sort
             public override async Task<(long, int[])> SortElements(Rectangle[] elements, int[] vals, Color baseColor, int delay)
             {
-                return (-1, null);
+                // Ensure valid array
+                if (elements == null || vals == null) { return (-1, vals); }
+                if (elements.Length == 1 || vals.Length == 1) { return (-1, vals); }
+
+                this.baseColor = new SolidColorBrush(baseColor);
+
+                long sortTime;
+
+                // If width < 1, no visual sort
+                if (elements[0].Width < 1)
+                {
+                    sortTime = TimeSort(ref vals);
+                    return (sortTime, vals);
+                }
+                else
+                {
+                    Rectangle[] sorted = elements.ToArray();
+                    sortTime = TimeSort(ref vals);
+                }
+
+                int length = vals.Length;
+                for (int i = 1; i < length; i++)
+                {
+                    int keyVal = vals[i];
+                    Rectangle keyRect = elements[i];
+                    double keyPos = Canvas.GetLeft(keyRect);
+                    double nextPos = keyPos;
+
+                    // Highlight active element red
+                    await SetColors(new Rectangle[] { keyRect }, swapColor, delay);
+
+                    int j = i - 1;
+
+                    // Shift right
+                    while (j >= 0 && vals[j] > keyVal)
+                    {
+                        // Set color of moving element
+                        await SetColors(new Rectangle[] { elements[j] }, checkColor, delay);
+                        
+                        // Shift
+                        vals[j + 1] = vals[j];
+                        elements[j + 1] = elements[j];
+
+                        // Update visual positions
+                        double currentPos = Canvas.GetLeft(elements[j]);
+                        Canvas.SetLeft(elements[j], nextPos);
+                        nextPos = currentPos;
+                        Canvas.SetLeft(keyRect, nextPos);
+
+                        // Reset element color
+                        await SetColors(new Rectangle[] { elements[j] }, this.baseColor, 0);
+                        j--;
+                    }
+
+                    // Insert key
+                    vals[j + 1] = keyVal;
+                    elements[j + 1] = keyRect;
+
+                    // Restore color and pos
+                    Canvas.SetLeft(keyRect, nextPos);
+
+                    await SetColors(new Rectangle[] { keyRect }, this.baseColor, delay);
+                }
+
+                return (sortTime, vals);
             }
 
             // Timed regular sort
