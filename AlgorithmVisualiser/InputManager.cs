@@ -90,11 +90,11 @@ namespace AlgorithmVisualiser
             // Prevent <1 widths
             if (width < 1)
             {
-                if (MessageBox.Show("There are too many elements to display, would you still like to sort them?", "Warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                if (MessageBox.Show("There are too many elements to display, would you still like to load them?", "Warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
                 {
                     return null;
                 }
-                width = 0.1;
+                width = 0.1f;
             }
 
             Rectangle[] rects = new Rectangle[data.Length];

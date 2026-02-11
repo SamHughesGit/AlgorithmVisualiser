@@ -1,16 +1,17 @@
-﻿using System;
+﻿using AlgorithmVisualiser.Pages;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using AlgorithmVisualiser.Pages;
-using System.Runtime.CompilerServices;
-using System.Windows.Shapes;
-using System.ComponentModel;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
-using System.Diagnostics;
+using System.Windows.Shapes;
+using System.Xml.Linq;
 
 namespace AlgorithmVisualiser
 {
@@ -43,22 +44,60 @@ namespace AlgorithmVisualiser
         {
             double bDesired = Canvas.GetLeft(a);
             double aDesired = Canvas.GetLeft(b);
+
             double difference = Math.Abs(aDesired - bDesired);
             int steps = 20;
             double step = difference / steps;
-            int time = (int)((aDesired - bDesired) / step);
+            int time = (int)(Math.Abs(aDesired - bDesired) / step);
 
             double aPos = Canvas.GetLeft(a);
             double bPos = Canvas.GetLeft(b);
-            while (Math.Abs(aPos - aDesired) >= step || Math.Abs(bPos - bDesired) >= step)
+
+            bool areInPosition = (Math.Abs(aPos - aDesired) <= step && Math.Abs(bPos - bDesired) <= step);
+            bool shouldAnimate = delay > steps;
+
+            while (!areInPosition && shouldAnimate)
             {
                 aPos = Canvas.GetLeft(a);
                 bPos = Canvas.GetLeft(b);
                 Canvas.SetLeft(a, aPos + (aPos < aDesired?step:-step));
                 Canvas.SetLeft(b, bPos + (bPos < bDesired?step:-step));
                 await Task.Delay(time);
+                areInPosition = (Math.Abs(aPos - aDesired) <= step && Math.Abs(bPos - bDesired) <= step);
             }
-            
+
+            // Finally, set desired positions to account for small floating point errors
+            Canvas.SetLeft(a, aDesired);
+            Canvas.SetLeft(b, bDesired);
+        }
+
+        // Animated move to pos
+        static public async Task MoveElementTo(Rectangle a, double pos, int delay)
+        {
+            double aPos = Canvas.GetLeft(a);
+            double difference = Math.Abs(aPos - pos);
+            int steps = 20;
+            double step = difference / steps;
+            int time = (int)(Math.Abs((aPos - pos)) / step);
+
+            while (Math.Abs(aPos - pos) >= step)
+            {
+                aPos = Canvas.GetLeft(a);
+                Canvas.SetLeft(a, aPos + (aPos < pos ? step : -step));
+                await Task.Delay(time);
+            }
+
+            // Finally, set desired positions to account for small floating point errors
+            Canvas.SetLeft(a, pos);
+        }
+
+        static public bool isValidArray(Rectangle[] rects, int[] ints)
+        {
+            bool isInvalidArray = (rects == null || ints == null);
+            if (isInvalidArray) return false;
+            bool isArrayShort = (rects.Length == 1 || ints.Length == 1);
+            if (isArrayShort) return false;
+            return true;
         }
 
         public class BubbleSort : Sort
@@ -79,35 +118,36 @@ namespace AlgorithmVisualiser
             // Returns a long (time) and int array (values)
             public override async Task<(long, int[])> SortElements(Rectangle[] elements, int[] vals, Color baseColor, int delay)
             {
-                if(elements == null || vals == null) { return (-1, vals); }
-                if(elements.Length == 1 || vals.Length == 1) { return (-1, vals); }
+                // Ensure valid array
+                if(!isValidArray(elements,vals)) { return (-1, vals); }
 
+                // Store base color
                 this.baseColor = new SolidColorBrush(baseColor);
 
-                long sortTime;
+                bool isInvalidWidth = elements[0].Width < 1;
+                long timeToSort;
 
-                // If width < 1, no visual sort
-                if (elements[0].Width < 1)
+                // If invalid width, no visual sort
+                if (isInvalidWidth)
                 {
-                    sortTime = TimeSort(ref vals);
-                    return (sortTime, vals);
+                    timeToSort = TimeSort(ref vals);
+                    return (timeToSort, vals);
                 }
-                else
-                {
-                    Rectangle[] sorted = elements.ToArray();
-                    sortTime = TimeSort(ref vals);
-                }
+                // Get time to sort and continue to visualise
+                else { int[] sortedVals = (int[])vals.Clone();  timeToSort = TimeSort(ref sortedVals); }
 
                 // Flag to check early sort
                 bool swap = false;
 
+                int elementCount = elements.Length;
+
                 // Sort
-                for (int i = 0; i < elements.Length - 1; i++)
+                for (int i = 0; i < elementCount - 1; i++)
                 {
                     // Reset swap flag every pass
                     swap = false;
 
-                    for (int j = 0; j < elements.Length - i - 1; j++)
+                    for (int j = 0; j < elementCount - i - 1; j++)
                     {
                         await SetColors(elements[j..(j + 2)], checkColor, delay);
 
@@ -138,11 +178,11 @@ namespace AlgorithmVisualiser
 
                         await SetColors(elements[j..(j + 2)], this.baseColor, delay);
                     }
-
-                    if (!swap) return (sortTime, vals);
+                    // Finish early if sorted
+                    if (!swap) return (timeToSort, vals);
                 }
 
-                return (sortTime,vals);
+                return (timeToSort, vals);
             }
 
             // Timed regular sort (also modifies the array it was invoked with, hence sorting the elements)
@@ -155,13 +195,14 @@ namespace AlgorithmVisualiser
                 // Flag to check if the elements are sorted early
                 bool swap = false;
 
+                int elementCount = elements.Length;
                 // Optimised so that after each pass, the last element in the previous pass is removed from the next pas
                 // Therefore reducing the number of passes by 1 per pass
-                for(int i = 0; i < elements.Length - 1; i++)
+                for (int i = 0; i < elementCount - 1; i++)
                 {
                     // Reset swap flag every pass
                     swap = false;
-                    for(int j = 0; j < elements.Length - i - 1; j++)
+                    for(int j = 0; j < elementCount - i - 1; j++)
                     {
                         double currentVal = elements[j];
                         double nextVal = elements[j + 1];
@@ -205,33 +246,30 @@ namespace AlgorithmVisualiser
             // Perform the actual sort
             public override async Task<(long, int[])> SortElements(Rectangle[] elements, int[] vals, Color baseColor, int delay)
             {
-                // Ensure valid array
-                if (elements == null || vals == null) { return (-1, vals); }
-                if (elements.Length == 1 || vals.Length == 1) { return (-1, vals); }
+                // Ensure valid array 
+                if (!isValidArray(elements, vals)) { return (-1, vals); }
 
+                // Save original color
                 this.baseColor = new SolidColorBrush(baseColor);
 
-                long sortTime;
+                bool isInvalidWidth = elements[0].Width < 1;
+                long timeToSort;
 
-                // If width < 1, no visual sort
-                if (elements[0].Width < 1)
+                if (isInvalidWidth)
                 {
-                    sortTime = TimeSort(ref vals);
-                    return (sortTime, vals);
+                    // Sort elements and return without any visualisation
+                    timeToSort = TimeSort(ref vals);
+                    return (timeToSort, vals);
                 }
-                else
-                {
-                    Rectangle[] sorted = elements.ToArray();
-                    sortTime = TimeSort(ref vals);
-                }
+                else { int[] sortedVals = (int[]) vals.Clone(); timeToSort = TimeSort(ref sortedVals); }
 
-                int length = vals.Length;
-                for (int i = 1; i < length; i++)
+                int elementCount = vals.Length;
+                for (int i = 1; i < elementCount; i++)
                 {
                     int keyVal = vals[i];
                     Rectangle keyRect = elements[i];
-                    double keyPos = Canvas.GetLeft(keyRect);
-                    double nextPos = keyPos;
+
+                    double nextPos = Canvas.GetLeft(keyRect); ;
 
                     // Highlight active element red
                     await SetColors(new Rectangle[] { keyRect }, swapColor, delay);
@@ -249,10 +287,8 @@ namespace AlgorithmVisualiser
                         elements[j + 1] = elements[j];
 
                         // Update visual positions
-                        double currentPos = Canvas.GetLeft(elements[j]);
-                        Canvas.SetLeft(elements[j], nextPos);
-                        nextPos = currentPos;
-                        Canvas.SetLeft(keyRect, nextPos);
+                        nextPos = Canvas.GetLeft(elements[j]);
+                        await SwapElementPos(elements[j], keyRect, delay);
 
                         // Reset element color
                         await SetColors(new Rectangle[] { elements[j] }, this.baseColor, 0);
@@ -265,17 +301,36 @@ namespace AlgorithmVisualiser
 
                     // Restore color and pos
                     Canvas.SetLeft(keyRect, nextPos);
-
                     await SetColors(new Rectangle[] { keyRect }, this.baseColor, delay);
                 }
 
-                return (sortTime, vals);
+                return (timeToSort, vals);
             }
 
             // Timed regular sort
             public override long TimeSort(ref int[] vals)
             {
-                return 0;
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
+
+                int elementCount = vals.Length;
+                for (int i = 1; i < elementCount; i++)
+                {
+                    int keyVal = vals[i];
+                    int j = i - 1;
+
+                    // Shift right
+                    while (j >= 0 && vals[j] > keyVal)
+                    {
+                        vals[j + 1] = vals[j];
+                        j--;
+                    }
+
+                    // Insert key
+                    vals[j + 1] = keyVal;
+                }
+                sw.Stop();
+                return sw.ElapsedMilliseconds;
             }
         }
     }
