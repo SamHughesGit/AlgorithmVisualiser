@@ -5,7 +5,6 @@ using System.Text.RegularExpressions;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using System.Windows.Automation.Peers;
 
 namespace AlgorithmVisualiser
 {
@@ -78,10 +77,8 @@ namespace AlgorithmVisualiser
         // Convert int array to array of rectangle objects
         public static Rectangle[] GenerateRectsFromData(Canvas canvas, int[] data, Color color)
         {
-            // If no data return early
             if(data == null) { return null; }
 
-            // Gap of 1px between bars
             int gap = 1;
 
             // Calculate rectangle width

@@ -48,7 +48,8 @@ namespace AlgorithmVisualiser
             double difference = Math.Abs(aDesired - bDesired);
             int steps = 20;
             double step = difference / steps;
-            int time = (int)(Math.Abs(aDesired - bDesired) / step);
+
+            int wait = delay / steps;
 
             double aPos = Canvas.GetLeft(a);
             double bPos = Canvas.GetLeft(b);
@@ -62,7 +63,7 @@ namespace AlgorithmVisualiser
                 bPos = Canvas.GetLeft(b);
                 Canvas.SetLeft(a, aPos + (aPos < aDesired?step:-step));
                 Canvas.SetLeft(b, bPos + (bPos < bDesired?step:-step));
-                await Task.Delay(time);
+                await Task.Delay(wait);
                 areInPosition = (Math.Abs(aPos - aDesired) <= step && Math.Abs(bPos - bDesired) <= step);
             }
 
@@ -160,7 +161,7 @@ namespace AlgorithmVisualiser
                             await SetColors(elements[j..(j + 2)], swapColor, delay);
 
                             // Swap elements using a temp variable to prevent overwriting value
-                            await SwapElementPos(elements[j], elements[j + 1], delay);
+                            await SwapElementPos(elements[j+1], elements[j], delay);
 
                             // Swap in rect array
                             Rectangle temp = elements[j];
@@ -175,8 +176,12 @@ namespace AlgorithmVisualiser
                             // Since a swap is performed, toggle flag
                             swap = true;
                         }
+                        else
+                        {
+                            await SetColors(elements[j..(j + 2)], this.correctColor, delay);
+                        }
 
-                        await SetColors(elements[j..(j + 2)], this.baseColor, delay);
+                        await SetColors(elements[j..(j + 2)], this.baseColor, 0);
                     }
                     // Finish early if sorted
                     if (!swap) return (timeToSort, vals);
