@@ -1,17 +1,8 @@
 ﻿using AlgorithmVisualiser.Pages;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using System.Xml.Linq;
 
 namespace AlgorithmVisualiser
 {
@@ -285,7 +276,7 @@ namespace AlgorithmVisualiser
                     while (j >= 0 && vals[j] > keyVal)
                     {
                         // Set color of moving element
-                        await SetColors(new Rectangle[] { elements[j] }, checkColor, delay);
+                        await SetColors(new Rectangle[] { elements[j] }, checkColor, 0);
                         
                         // Shift
                         vals[j + 1] = vals[j];
@@ -306,7 +297,7 @@ namespace AlgorithmVisualiser
 
                     // Restore color and pos
                     Canvas.SetLeft(keyRect, nextPos);
-                    await SetColors(new Rectangle[] { keyRect }, this.baseColor, delay);
+                    await SetColors(new Rectangle[] { keyRect }, this.baseColor, 0);
                 }
 
                 return (timeToSort, vals);
