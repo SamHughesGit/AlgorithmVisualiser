@@ -15,6 +15,14 @@ namespace AlgorithmVisualiser
 
     }
 
+    // Base class for searchers derive from
+    public abstract class Search
+    {
+        public string BigO { get; set; }
+        public abstract Task<(long, int)> SearchElements(Rectangle[] elements, int[] vals, Color baseColor, int delay, int target);
+        public abstract long TimeSearch(ref int[] vals, int target);
+    }
+
     static class Sorter
     {
         // List of pages for dynamically creating buttons
