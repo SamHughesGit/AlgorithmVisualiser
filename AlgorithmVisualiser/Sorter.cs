@@ -152,17 +152,9 @@ namespace AlgorithmVisualiser
                             await SwapElementPos(elements[j+1], elements[j], delay);
 
                             // Swap in rect array
-                            //Rectangle temp = elements[j];
-                            //elements[j] = elements[j + 1];
-                            //elements[j + 1] = temp;
-
                             (elements[j], elements[j + 1]) = (elements[j + 1], elements[j]);
 
                             // Swap in vals array
-                            //int val = vals[j];
-                            //vals[j] = vals[j + 1];
-                            //vals[j + 1] = val;
-
                             (vals[j], vals[j + 1]) = (vals[j + 1], vals[j]);
 
 
@@ -210,10 +202,6 @@ namespace AlgorithmVisualiser
                         if(nextVal < currentVal)
                         {
                             // Swap elements using a temp variable to prevent overwriting value
-                            //int temp = elements[j];
-                            //elements[j] = elements[j+1];
-                            //elements[j + 1] = temp;
-
                             (elements[j], elements[j + 1]) = (elements[j + 1], elements[j]);
 
 
