@@ -1,18 +1,8 @@
 ﻿using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace AlgorithmVisualiser.Pages
@@ -25,6 +15,7 @@ namespace AlgorithmVisualiser.Pages
         {
             InitializeComponent();
             sorter = new Sorter.BubbleSort();
+            BigO.Content = $"Big {sorter.BigO}";
         }
 
         Rectangle[]? rects;
@@ -113,11 +104,3 @@ namespace AlgorithmVisualiser.Pages
         }
     }
 }
-
-///
-/// TODO: FIX EXPORT FROM HEIGHT, THIS EXPORTS THE MAPPED VALUE, THATS BAD WE NEED THE ORIGINAL
-///
-
-///
-/// TODO: MORE ALGORITHMS, COMPARE GRAPH <-- THIS IS PRIORITY
-///

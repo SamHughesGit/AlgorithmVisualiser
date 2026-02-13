@@ -18,7 +18,7 @@ namespace AlgorithmVisualiser
     static class Sorter
     {
         // List of pages for dynamically creating buttons
-        static public List<Page> pages = new List<Page> { new BubbleSortPage(), new InsertionSortPage() };
+        static public List<Page> pages = new List<Page> { new BubbleSortPage(), new InsertionSortPage(), new QuickSortPage() };
 
         // Set color of a list of elements
         static public async Task SetColors(Rectangle[] items, SolidColorBrush color, int delay)
@@ -45,17 +45,16 @@ namespace AlgorithmVisualiser
             double aPos = Canvas.GetLeft(a);
             double bPos = Canvas.GetLeft(b);
 
-            bool areInPosition = (Math.Abs(aPos - aDesired) <= step && Math.Abs(bPos - bDesired) <= step);
+            bool AreInPosition() => (Math.Abs(aPos - aDesired) <= step && Math.Abs(bPos - bDesired) <= step);
             bool shouldAnimate = delay > steps;
 
-            while (!areInPosition && shouldAnimate)
+            while (!AreInPosition() && shouldAnimate)
             {
                 aPos = Canvas.GetLeft(a);
                 bPos = Canvas.GetLeft(b);
                 Canvas.SetLeft(a, aPos + (aPos < aDesired?step:-step));
                 Canvas.SetLeft(b, bPos + (bPos < bDesired?step:-step));
                 await Task.Delay(wait);
-                areInPosition = (Math.Abs(aPos - aDesired) <= step && Math.Abs(bPos - bDesired) <= step);
             }
 
             // Finally, set desired positions to account for small floating point errors
@@ -68,6 +67,7 @@ namespace AlgorithmVisualiser
         {
             double aPos = Canvas.GetLeft(a);
             double difference = Math.Abs(aPos - pos);
+
             int steps = 20;
             double step = difference / steps;
             int time = (int)(Math.Abs((aPos - pos)) / step);
@@ -110,10 +110,7 @@ namespace AlgorithmVisualiser
             // Returns a long (time) and int array (values)
             public override async Task<(long, int[])> SortElements(Rectangle[] elements, int[] vals, Color baseColor, int delay)
             {
-                // Ensure valid array
                 if(!isValidArray(elements,vals)) { return (-1, vals); }
-
-                // Store base color
                 this.baseColor = new SolidColorBrush(baseColor);
 
                 bool isInvalidWidth = elements[0].Width < 1;
@@ -151,18 +148,23 @@ namespace AlgorithmVisualiser
                         {
                             await SetColors(elements[j..(j + 2)], swapColor, delay);
 
-                            // Swap elements using a temp variable to prevent overwriting value
+                            // Swap elements visual position
                             await SwapElementPos(elements[j+1], elements[j], delay);
 
                             // Swap in rect array
-                            Rectangle temp = elements[j];
-                            elements[j] = elements[j + 1];
-                            elements[j + 1] = temp;
+                            //Rectangle temp = elements[j];
+                            //elements[j] = elements[j + 1];
+                            //elements[j + 1] = temp;
+
+                            (elements[j], elements[j + 1]) = (elements[j + 1], elements[j]);
 
                             // Swap in vals array
-                            int val = vals[j];
-                            vals[j] = vals[j + 1];
-                            vals[j + 1] = val;
+                            //int val = vals[j];
+                            //vals[j] = vals[j + 1];
+                            //vals[j + 1] = val;
+
+                            (vals[j], vals[j + 1]) = (vals[j + 1], vals[j]);
+
 
                             // Since a swap is performed, toggle flag
                             swap = true;
@@ -192,6 +194,7 @@ namespace AlgorithmVisualiser
                 bool swap = false;
 
                 int elementCount = elements.Length;
+
                 // Optimised so that after each pass, the last element in the previous pass is removed from the next pas
                 // Therefore reducing the number of passes by 1 per pass
                 for (int i = 0; i < elementCount - 1; i++)
@@ -207,9 +210,12 @@ namespace AlgorithmVisualiser
                         if(nextVal < currentVal)
                         {
                             // Swap elements using a temp variable to prevent overwriting value
-                            int temp = elements[j];
-                            elements[j] = elements[j+1];
-                            elements[j + 1] = temp;
+                            //int temp = elements[j];
+                            //elements[j] = elements[j+1];
+                            //elements[j + 1] = temp;
+
+                            (elements[j], elements[j + 1]) = (elements[j + 1], elements[j]);
+
 
                             // Since a swap is performed, toggle flag
                             swap = true;
@@ -242,10 +248,7 @@ namespace AlgorithmVisualiser
             // Perform the actual sort
             public override async Task<(long, int[])> SortElements(Rectangle[] elements, int[] vals, Color baseColor, int delay)
             {
-                // Ensure valid array 
                 if (!isValidArray(elements, vals)) { return (-1, vals); }
-
-                // Save original color
                 this.baseColor = new SolidColorBrush(baseColor);
 
                 bool isInvalidWidth = elements[0].Width < 1;
@@ -327,6 +330,127 @@ namespace AlgorithmVisualiser
                 }
                 sw.Stop();
                 return sw.ElapsedMilliseconds;
+            }
+        }
+
+        public class QuickSort : Sort
+        {
+            private SolidColorBrush pivotColor = new SolidColorBrush(Colors.Gold);
+            private SolidColorBrush checkColor = new SolidColorBrush(Color.FromRgb(56, 65, 235));
+            private SolidColorBrush swapColor = new SolidColorBrush(Color.FromRgb(222, 104, 89));
+            private SolidColorBrush baseColor;
+
+            public QuickSort()
+            {
+                this.BigO = "O(n log n)";
+            }
+
+            public override async Task<(long, int[])> SortElements(Rectangle[] elements, int[] vals, Color baseColor, int delay)
+            {
+                if (!isValidArray(elements, vals)) return (-1, vals);
+                this.baseColor = new SolidColorBrush(baseColor);
+
+                bool isInvalidWidth = elements[0].Width < 1;
+                long timeToSort;
+
+                // If invalid width, no visual sort
+                if (isInvalidWidth)
+                {
+                    timeToSort = TimeSort(ref vals);
+                    return (timeToSort, vals);
+                }
+                // Get time to sort and continue to visualise
+                else { int[] sortedVals = (int[])vals.Clone(); timeToSort = TimeSort(ref sortedVals); }
+
+                await QuickSortVisual(elements, vals, 0, vals.Length - 1, delay);
+
+                await SetColors(elements, this.baseColor, 0);
+                return (timeToSort, vals);
+            }
+
+            private async Task QuickSortVisual(Rectangle[] elements, int[] vals, int left, int right, int delay)
+            {
+                if(left < right)
+                {
+                    int pivot = await PartitionVisual(elements, vals, left, right, delay);
+
+                    await QuickSortVisual(elements, vals, left, pivot - 1, delay);
+                    await QuickSortVisual(elements, vals, pivot + 1, right, delay);
+                }
+            }
+
+            private async Task<int> PartitionVisual(Rectangle[] elements, int[] vals, int left, int right, int delay)
+            {
+                int pivot = vals[right];
+                Rectangle pivotRect = elements[right];
+                await SetColors(new Rectangle[] { pivotRect }, pivotColor, delay);
+
+                int i = left - 1;
+
+                for (int j = left; j < right; j++)
+                {
+                    await SetColors(new Rectangle[] { elements[j] }, checkColor, delay);
+
+                    if (vals[j] < pivot)
+                    {
+                        i++;
+                        await SetColors(new Rectangle[] { elements[i], elements[j] },  swapColor, delay);
+
+                        // Swap visual positions
+                        await SwapElementPos(elements[i], elements[j], delay);
+
+                        // Swap array positions using tuples
+                        (elements[i], elements[j]) = (elements[j], elements[i]);
+                        (vals[i], vals[j]) = (vals[j], vals[i]);
+                    }
+                    await SetColors(new Rectangle[] { elements[j] }, this.baseColor, 0);
+                }
+
+                // Place pivot into correct position
+                await SetColors(new Rectangle[] { elements[i + 1], elements[right] }, swapColor, delay);
+                await SwapElementPos(elements[i + 1], elements[right], delay);
+
+                (elements[i + 1], elements[right]) = (elements[right], elements[i + 1]);
+                (vals[i + 1], vals[right]) = (vals[right], vals[i + 1]);
+
+                await SetColors(elements[left..(right+1)], this.baseColor, 0);
+                return i + 1;
+            }
+
+            public override long TimeSort(ref int[] vals)
+            {
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
+                QuickSortTime(vals, 0, vals.Length - 1);
+                sw.Stop();
+                return sw.ElapsedMilliseconds;
+            }
+
+            private void QuickSortTime(int[] vals, int left, int right)
+            {
+                if(left < right)
+                {
+                    int pivot = Partition(vals, left, right);
+                    QuickSortTime(vals, left, pivot - 1);
+                    QuickSortTime(vals, pivot + 1, right);
+                }
+            }
+
+            private int Partition(int[] vals, int left, int right)
+            {
+                int pivot = vals[right];
+                int i = left - 1;
+                for(int j = left; j < right; j++)
+                {
+                    if (vals[j] < pivot)
+                    {
+                        i++;
+                        // Swap using a tuple
+                        (vals[i], vals[j]) = (vals[j], vals[i]);
+                    }
+                }
+                (vals[i+1] , vals[right]) = (vals[right], vals[i+1]);
+                return i + 1;
             }
         }
     }

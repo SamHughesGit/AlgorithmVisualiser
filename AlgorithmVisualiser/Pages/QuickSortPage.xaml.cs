@@ -7,14 +7,14 @@ using System.Windows.Shapes;
 
 namespace AlgorithmVisualiser.Pages
 {
-    public partial class InsertionSortPage : Page
+    public partial class QuickSortPage : Page
     {
-        Sorter.InsertionSort sorter;
+        Sorter.QuickSort sorter;
 
-        public InsertionSortPage()
+        public QuickSortPage()
         {
             InitializeComponent();
-            sorter = new Sorter.InsertionSort();
+            sorter = new Sorter.QuickSort();
             BigO.Content = $"Big {sorter.BigO}";
         }
 
