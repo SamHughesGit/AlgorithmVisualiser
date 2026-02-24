@@ -27,7 +27,7 @@ namespace AlgorithmVisualiser
     static class Sorter
     {
         // List of pages for dynamically creating buttons
-        static public List<Page> pages = new List<Page> { new BubbleSortPage(), new InsertionSortPage(), new QuickSortPage() };
+        static public List<Page> pages = new List<Page> { new BubbleSortPage(), new InsertionSortPage(), new QuickSortPage(), new LinearSearchPage() };
 
         // Set color of a list of elements
         static public async Task SetColors(Rectangle[] items, SolidColorBrush color, int delay)
