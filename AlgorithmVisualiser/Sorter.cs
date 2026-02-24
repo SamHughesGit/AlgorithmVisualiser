@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 
 namespace AlgorithmVisualiser
@@ -20,7 +21,7 @@ namespace AlgorithmVisualiser
     {
         public string BigO { get; set; }
         public abstract Task<(long, int)> SearchElements(Rectangle[] elements, int[] vals, Color baseColor, int delay, int target);
-        public abstract long TimeSearch(ref int[] vals, int target);
+        public abstract (long, int) TimeSearch(int[] vals, int target);
     }
 
     static class Sorter
@@ -91,13 +92,16 @@ namespace AlgorithmVisualiser
             Canvas.SetLeft(a, pos);
         }
 
-        static public bool isValidArray(Rectangle[] rects, int[] ints)
+        public static class Util
         {
-            bool isInvalidArray = (rects == null || ints == null);
-            if (isInvalidArray) return false;
-            bool isArrayShort = (rects.Length == 1 || ints.Length == 1);
-            if (isArrayShort) return false;
-            return true;
+            static public bool isValidArray(Rectangle[] rects, int[] ints)
+            {
+                bool isInvalidArray = (rects == null || ints == null);
+                if (isInvalidArray) return false;
+                bool isArrayShort = (rects.Length == 1 || ints.Length == 1);
+                if (isArrayShort) return false;
+                return true;
+            }
         }
 
         public class BubbleSort : Sort
@@ -118,7 +122,7 @@ namespace AlgorithmVisualiser
             // Returns a long (time) and int array (values)
             public override async Task<(long, int[])> SortElements(Rectangle[] elements, int[] vals, Color baseColor, int delay)
             {
-                if(!isValidArray(elements,vals)) { return (-1, vals); }
+                if(!Util.isValidArray(elements,vals)) { return (-1, vals); }
                 this.baseColor = new SolidColorBrush(baseColor);
 
                 bool isInvalidWidth = elements[0].Width < 1;
@@ -244,7 +248,7 @@ namespace AlgorithmVisualiser
             // Perform the actual sort
             public override async Task<(long, int[])> SortElements(Rectangle[] elements, int[] vals, Color baseColor, int delay)
             {
-                if (!isValidArray(elements, vals)) { return (-1, vals); }
+                if (!Util.isValidArray(elements, vals)) { return (-1, vals); }
                 this.baseColor = new SolidColorBrush(baseColor);
 
                 bool isInvalidWidth = elements[0].Width < 1;
@@ -343,7 +347,7 @@ namespace AlgorithmVisualiser
 
             public override async Task<(long, int[])> SortElements(Rectangle[] elements, int[] vals, Color baseColor, int delay)
             {
-                if (!isValidArray(elements, vals)) return (-1, vals);
+                if (!Util.isValidArray(elements, vals)) return (-1, vals);
                 this.baseColor = new SolidColorBrush(baseColor);
 
                 bool isInvalidWidth = elements[0].Width < 1;
@@ -447,6 +451,80 @@ namespace AlgorithmVisualiser
                 }
                 (vals[i+1] , vals[right]) = (vals[right], vals[i+1]);
                 return i + 1;
+            }
+        }
+
+        public class LinearSearch : Search
+        {
+            private SolidColorBrush checkColor = new SolidColorBrush(Color.FromRgb(56, 65, 235));
+            private SolidColorBrush correctColor = new SolidColorBrush(Color.FromRgb(143, 204, 102));
+            private SolidColorBrush baseColor;
+
+            public LinearSearch()
+            {
+                this.BigO = "O(n)";
+            }
+
+            public override async Task<(long, int)> SearchElements(Rectangle[] elements, int[] vals, Color baseColor, int delay, int target) 
+            {
+                // If either array is invalid, return now
+                if (!Util.isValidArray(elements, vals)) return (-1, -1);
+                bool isInvalidWidth = elements[0].Width < 1;
+                this.baseColor = new SolidColorBrush(baseColor);
+                bool isIteminArray = false;
+                int timeToFind = 0;
+
+                (long, int) found;
+
+                // If invalid width, find without visuals
+                if (isInvalidWidth)
+                {
+                    found = TimeSearch(vals, target);
+                    return found;
+                }
+                else
+                {
+                    found = TimeSearch(vals, target);
+                }
+
+                // Iterate over each rectangle
+                for (int i = 0; i < elements.Length; i++)
+                {
+                    Rectangle currentRect = elements[i];
+                    // Set to check color
+                    currentRect.Fill = checkColor;
+                    await Task.Delay(delay); // Artificial delay
+
+                    // If element is the target, highlight new color and return, otherwise reset color and move on
+                    if (vals[i] == target)
+                    {
+                        currentRect.Fill = correctColor;
+                        return found;
+                    }
+
+                    currentRect.Fill = this.baseColor;
+                }
+
+                // If item not in array, return;
+                return found;
+            }
+
+            // Time search, return -1 if not found
+            public override (long, int) TimeSearch(int[] vals, int target)
+            {
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
+
+                for(int i = 0; i < vals.Length; i++)
+                {
+                    if (vals[i] == target)
+                    {
+                        sw.Stop();
+                        return (sw.ElapsedMilliseconds, i);
+                    }
+                }
+                sw.Stop();
+                return (-1, -1);
             }
         }
     }
