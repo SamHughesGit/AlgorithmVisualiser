@@ -19,7 +19,10 @@
         <Border Grid.Row="0" Background="#999999" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                 <!-- Generate elements button -->
-                <Button Content="Generate" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="12,0,12,0" Padding="4,2,4,2" Click="GenerateElements" x:Name="GenerateButton"/>
+                <Button Content="Generate" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="12,0,6,0" Padding="4,2,4,2" Click="GenerateElements" x:Name="GenerateButton"/>
+
+                <!-- Sorted? tickbox -->
+                <CheckBox Content="Sorted"  HorizontalAlignment="Left" VerticalAlignment="Center" Margin="4,0,6,0" Padding="4,2,4,2" x:Name="SortedCheckbox"/>
 
                 <!-- Inputs & Labls -->
                 <StackPanel Margin="0,0,12,5" VerticalAlignment="Center">
@@ -36,10 +39,10 @@
                 </StackPanel>
 
                 <!-- Load elements from file button-->
-                <Button Content="Search" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,12,0" Padding="4,2,4,2" Click="LoadElements" x:Name="SearchButton"/>
+                <Button Content="Load" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,12,0" Padding="4,2,4,2" Click="LoadElements" x:Name="LoadButton"/>
 
                 <!-- Perform sort button-->
-                <Button Content="Sort" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,12,0" Padding="4,2,4,2" Click="SortElements" x:Name="SortButton"/>
+                <Button Content="Search" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,12,0" Padding="4,2,4,2" Click="SearchElements" x:Name="SearchButton"/>
 
                 <Label HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,4,0" x:Name="BigO">Big O: O(n^2)</Label>
                 <Label HorizontalAlignment="Right" VerticalAlignment="Center" x:Name="TimeToFinish">Time:</Label>

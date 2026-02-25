@@ -1,17 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace AlgorithmVisualiser.Pages
@@ -32,6 +24,7 @@ namespace AlgorithmVisualiser.Pages
 
         Rectangle[]? rects;
         int[]? vals;
+        int indexFound;
 
         Color baseColor = Color.FromRgb(46, 46, 46);
 
@@ -44,8 +37,6 @@ namespace AlgorithmVisualiser.Pages
             // Load values from file & generate rectanlges from them
             vals = await InputManager.LoadFromFile();
             rects = InputManager.GenerateRectsFromData(Display, vals, baseColor);
-
-            // MessageBox.Show($"{rects.Length} elements loaded", "Loaded!", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         // On GenerateElements button clicked
@@ -58,7 +49,8 @@ namespace AlgorithmVisualiser.Pages
             if (int.TryParse(ElementInput.Text, out int elements))
             {
                 // Get random rects
-                (rects, vals) = InputManager.GenerateRandomRects(Display, Convert.ToInt32(ElementInput.Text), baseColor);
+                if(SortedCheckbox.IsChecked == true)(rects, vals) = InputManager.GenerateRects(Display, Convert.ToInt32(ElementInput.Text), baseColor);
+                else (rects, vals) = InputManager.GenerateRandomRects(Display, Convert.ToInt32(ElementInput.Text), baseColor);
 
                 if (rects == null)
                 {
@@ -74,7 +66,35 @@ namespace AlgorithmVisualiser.Pages
         // On Search button clicked
         async void SearchElements(object sender, RoutedEventArgs e)
         {
+            // Restore colors
+            SolidColorBrush baseColorRect = new SolidColorBrush(baseColor);
+            foreach (Rectangle r in rects) r.Fill = baseColorRect;
 
+            // If valid inputs, search
+            if (int.TryParse(SearchInput.Text, out int target)) {
+                if (int.TryParse(DelayInput.Text, out int delay))
+                {
+                    SearchButton.IsEnabled = false;
+
+                    long time;
+                    (time, indexFound) = await searcher.SearchElements(rects, vals, baseColor, delay, target);
+
+                    SearchButton.IsEnabled = true;
+
+                    TimeToFinish.Content = $"Time: {time}ms";
+
+                    if(indexFound!=-1)MessageBox.Show($"Item {target} found at index {indexFound}", "Found", MessageBoxButton.OK, MessageBoxImage.Information);
+                    else MessageBox.Show($"Item {target} was not found in the dataset", "Not Found", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    MessageBox.Show("Invalid delay!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Invalid search item!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }

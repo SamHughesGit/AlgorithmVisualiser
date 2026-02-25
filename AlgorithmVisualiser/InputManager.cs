@@ -160,7 +160,40 @@ namespace AlgorithmVisualiser
             }
 
             return (rects, vals);
-        }        
+        }
+
+        // Generate non random rects
+        public static (Rectangle[]?, int[]?) GenerateRects(Canvas canvas, int elementCount, Color color)
+        {
+            Rectangle[] rects = new Rectangle[elementCount];
+            int[] vals = new int[elementCount];
+
+            // Gap of 1px
+            int gap = 1;
+
+            // Calculate rectangle width
+            double width = (canvas.ActualWidth / elementCount) - gap;
+
+            // Prevent < 1 pixel widths
+            if (width < 1) { return (null, null); }
+
+            // Generate random rectangles, ensuring no dulicated values using a list of values
+            for (int i = 0; i < elementCount; i++)
+            {
+                Rectangle rect = new Rectangle();
+                rect.Height = MapRange(i+1, 1, elementCount, canvas);
+                rect.Width = width;
+                rect.Fill = new SolidColorBrush(color);
+                // Dynamically place
+                Canvas.SetLeft(rect, width * i + gap * i + 1);
+                Canvas.SetBottom(rect, 0);
+                canvas.Children.Add(rect);
+                rects[i] = rect;
+                vals[i] = i+1;
+            }
+
+            return (rects, vals);
+        }
 
         // Map range of data set to pixel size
         public static int MapRange(int val, int dataMin, int dataMax, Canvas canvas)
