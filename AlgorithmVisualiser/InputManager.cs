@@ -196,13 +196,13 @@ namespace AlgorithmVisualiser
         }
 
         // Map range of data set to pixel size
-        public static int MapRange(int val, int dataMin, int dataMax, Canvas canvas)
-        {
-            int targetMax = (int)(canvas.ActualHeight - 10);
-            int targetMin = 5;
+            public static int MapRange(int val, int dataMin, int dataMax, Canvas canvas)
+            {
+                int targetMax = (int)(canvas.ActualHeight - 10);
+                int targetMin = 5;
 
-            // Map value into range of canvas size
-            return targetMin + (val - dataMin) * (targetMax - targetMin) / (dataMax - dataMin);
-        }
+                // Map value into range of canvas size
+                return targetMin + (val - dataMin) * (targetMax - targetMin) / (dataMax - dataMin);
+            }
     }
 }

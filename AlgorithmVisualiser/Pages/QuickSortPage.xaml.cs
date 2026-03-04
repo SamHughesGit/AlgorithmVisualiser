@@ -75,31 +75,35 @@ namespace AlgorithmVisualiser.Pages
 
                 // Display time taken
                 TimeToFinish.Content = $"Time: {time}ms";
-            }
 
-            // Ask to export?
-            if (MessageBox.Show("Would you like to export the sorted data-set?", "Export", MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
-            {
-                OpenFolderDialog dialog = new OpenFolderDialog();
-
-                dialog.Title = "Select an export folder";
-
-                if (dialog.ShowDialog() == true)
+                // Ask to export?
+                if (MessageBox.Show("Would you like to export the sorted data-set?", "Export", MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
                 {
-                    string path = dialog.FolderName;
+                    OpenFolderDialog dialog = new OpenFolderDialog();
 
-                    try // Try write file
-                    {
-                        // Convert rect array into string of heights seperated by comma
-                        string output = string.Join(", ", vals);
+                    dialog.Title = "Select an export folder";
 
-                        File.WriteAllText(System.IO.Path.Combine(path, "output.txt"), output);
-                    }
-                    catch // Write failed
+                    if (dialog.ShowDialog() == true)
                     {
-                        MessageBox.Show("An error occured during export.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        string path = dialog.FolderName;
+
+                        try // Try write file
+                        {
+                            // Convert rect array into string of heights seperated by comma
+                            string output = string.Join(", ", vals);
+
+                            File.WriteAllText(System.IO.Path.Combine(path, "output.txt"), output);
+                        }
+                        catch // Write failed
+                        {
+                            MessageBox.Show("An error occured during export.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
                     }
                 }
+            }
+            else
+            {
+                MessageBox.Show("Invalid delay!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
