@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Transactions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -8,14 +6,14 @@ using System.Windows.Shapes;
 
 namespace AlgorithmVisualiser.Pages
 {
-    public partial class LinearSearchPage : Page
+    public partial class BinarySearchPage : Page
     {
-        Sorter.LinearSearch searcher;
+        Sorter.BinarySearch searcher;
 
-        public LinearSearchPage()
+        public BinarySearchPage()
         {
             InitializeComponent();
-            searcher = new Sorter.LinearSearch();
+            searcher = new Sorter.BinarySearch();
             BigO.Content = $"Big {searcher.BigO}";
         }
 
@@ -45,9 +43,8 @@ namespace AlgorithmVisualiser.Pages
             // Input validation
             if (int.TryParse(ElementInput.Text, out int elements))
             {
-                // Get random rects
-                if(SortedCheckbox.IsChecked == true)(rects, vals) = InputManager.GenerateRects(Display, Convert.ToInt32(ElementInput.Text), baseColor);
-                else (rects, vals) = InputManager.GenerateRandomRects(Display, Convert.ToInt32(ElementInput.Text), baseColor);
+                // Get rects
+                (rects, vals) = InputManager.GenerateRects(Display, Convert.ToInt32(ElementInput.Text), baseColor);
 
                 if (rects == null)
                 {
@@ -67,8 +64,12 @@ namespace AlgorithmVisualiser.Pages
             SolidColorBrush baseColorRect = new SolidColorBrush(baseColor);
             foreach (Rectangle r in rects) r.Fill = baseColorRect;
 
+            bool isSorted = Sorter.Util.isSorted(vals);
+            if (!isSorted) { MessageBox.Show("Array must be sorted!", "Error", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
+
             // If valid inputs, search
-            if (int.TryParse(SearchInput.Text, out int target)) {
+            if (int.TryParse(SearchInput.Text, out int target))
+            {
                 if (int.TryParse(DelayInput.Text, out int delay))
                 {
                     SearchButton.IsEnabled = false;
@@ -80,7 +81,7 @@ namespace AlgorithmVisualiser.Pages
 
                     TimeToFinish.Content = $"Time: {time}ms";
 
-                    if(indexFound!=-1)MessageBox.Show($"Item {target} found at index {indexFound}", "Found", MessageBoxButton.OK, MessageBoxImage.Information);
+                    if (indexFound != -1) MessageBox.Show($"Item {target} found at index {indexFound}", "Found", MessageBoxButton.OK, MessageBoxImage.Information);
                     else MessageBox.Show($"Item {target} was not found in the dataset", "Not Found", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
                 else

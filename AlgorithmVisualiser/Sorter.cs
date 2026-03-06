@@ -1,9 +1,11 @@
 ﻿using AlgorithmVisualiser.Pages;
 using System.Diagnostics;
+using System.DirectoryServices;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace AlgorithmVisualiser
 {
@@ -27,7 +29,7 @@ namespace AlgorithmVisualiser
     static class Sorter
     {
         // List of pages for dynamically creating buttons
-        static public List<Page> pages = new List<Page> { new BubbleSortPage(), new InsertionSortPage(), new QuickSortPage(), new LinearSearchPage() };
+        static public List<Page> pages = new List<Page> { new BubbleSortPage(), new InsertionSortPage(), new QuickSortPage(), new LinearSearchPage(), new BinarySearchPage() };
 
         // Set color of a list of elements
         static public async Task SetColors(Rectangle[] items, SolidColorBrush color, int delay)
@@ -101,6 +103,16 @@ namespace AlgorithmVisualiser
                 bool isArrayShort = (rects.Length == 1 || ints.Length == 1);
                 if (isArrayShort) return false;
                 return true;
+            }
+
+            static public bool isSorted(int[] ints)
+            {
+                // O (n-1)
+                for(int i = 0; i < ints.Length-1; i++)
+                {
+                    if (ints[i] > ints[i + 1]) return false;
+                }
+                return true;    
             }
         }
 
@@ -524,7 +536,99 @@ namespace AlgorithmVisualiser
                     }
                 }
                 sw.Stop();
-                return (-1, -1);
+                return (sw.ElapsedMilliseconds, -1);
+            }
+        }
+
+        public class BinarySearch : Search
+        {
+            // Color vars
+            private SolidColorBrush checkColor = new SolidColorBrush(Color.FromRgb(56, 65, 235));
+            private SolidColorBrush correctColor = new SolidColorBrush(Color.FromRgb(143, 204, 102));
+            private SolidColorBrush baseColor;
+
+            public BinarySearch()
+            {
+                this.BigO = "O(log n)";
+            }
+
+            public override async Task<(long, int)> SearchElements(Rectangle[] elements, int[] vals, Color baseColor, int delay, int target)
+            {
+                // If either array is invalid, return now OR if unsorted.
+                if (!Util.isValidArray(elements, vals) || !Util.isSorted(vals)) return (-1, -1);
+                bool isInvalidWidth = elements[0].Width < 1;
+                this.baseColor = new SolidColorBrush(baseColor);
+                bool isIteminArray = false;
+                int timeToFind = 0;
+
+                (long, int) found;
+
+                // If invalid width, find without visuals
+                if (isInvalidWidth)
+                {
+                    found = TimeSearch(vals, target);
+                    return found;
+                }
+                else
+                {
+                    found = TimeSearch(vals, target);
+                }
+
+                int low = 0;
+                int high = vals.Length - 1;
+                while (low <= high)
+                {
+                    int mid = low + (high - low) / 2;
+                    elements[mid].Fill = checkColor;
+
+                    // Is target at mid?
+                    if (vals[mid] == target)
+                    {
+                        Task.Delay(delay);
+                        elements[mid].Fill = correctColor;
+                        return (found);
+                    }
+
+                    // If target > mid, ignore left half
+                    if (vals[mid] < target) low = mid + 1;
+
+                    // otherwise ignore right half
+                    else high = mid - 1;
+
+                    // Delay
+                    await Task.Delay(delay);
+                    elements[mid].Fill = this.baseColor;
+                }
+                return found;
+            }
+
+            public override (long, int) TimeSearch(int[] vals, int target)
+            {
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
+
+                int low = 0;
+                int high = vals.Length - 1;
+                while (low <= high)
+                {
+                    int mid = low + (high - low) / 2;
+
+                    // Is target at mid?
+                    if (vals[mid] == target)
+                    {
+                        sw.Stop();
+                        return (sw.ElapsedMilliseconds, mid);
+                    }
+
+                    // If target > mid, ignore left half
+                    if (vals[mid] < target) low = mid + 1;
+
+                    // otherwise ignore right half
+                    else high = mid - 1;
+
+                }
+                sw.Stop();
+                return (sw.ElapsedMilliseconds, -1);
             }
         }
     }
