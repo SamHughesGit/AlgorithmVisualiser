@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Reflection.Metadata.Ecma335;
 
 namespace AlgorithmVisualiser
 {
@@ -123,6 +124,9 @@ namespace AlgorithmVisualiser
         // Generate random rectangles
         public static (Rectangle[]?, int[]?) GenerateRandomRects(Canvas canvas, int elementCount, Color color)
         {
+            // Prevent generating < 2 elementsS
+            if (elementCount < 2) { return (null, null); }
+
             Rectangle[] rects = new Rectangle[elementCount];
             int[] vals = new int[elementCount];
 
@@ -169,6 +173,9 @@ namespace AlgorithmVisualiser
         // Generate non random rects
         public static (Rectangle[]?, int[]?) GenerateRects(Canvas canvas, int elementCount, Color color)
         {
+            // Prevent generating < 2 elementsS
+            if(elementCount < 2) { return (null, null); }
+
             Rectangle[] rects = new Rectangle[elementCount];
             int[] vals = new int[elementCount];
 
@@ -204,6 +211,9 @@ namespace AlgorithmVisualiser
         {
             int targetMax = (int)(canvas.ActualHeight - 10);
             int targetMin = 5;
+
+            // Prevent div by zero errors
+            if (dataMax - dataMin == 0) return targetMax;
 
             // Map value into range of canvas size
             return targetMin + (val - dataMin) * (targetMax - targetMin) / (dataMax - dataMin);

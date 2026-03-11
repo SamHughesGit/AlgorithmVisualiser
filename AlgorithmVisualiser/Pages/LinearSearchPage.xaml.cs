@@ -51,7 +51,7 @@ namespace AlgorithmVisualiser.Pages
 
                 if (rects == null)
                 {
-                    MessageBox.Show("Too many elements to display!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Invalid element count. Minimum: 2", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             else // Fail validation, display error
