@@ -77,7 +77,11 @@ namespace AlgorithmVisualiser
         // Convert int array to array of rectangle objects
         public static Rectangle[] GenerateRectsFromData(Canvas canvas, int[] data, Color color)
         {
-            if(data == null) { return null; }
+            if(data == null || data.Length <= 1) 
+            {
+                MessageBox.Show("The file loaded contained no valid data.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return null; 
+            }
 
             int gap = 1;
 
@@ -196,13 +200,13 @@ namespace AlgorithmVisualiser
         }
 
         // Map range of data set to pixel size
-            public static int MapRange(int val, int dataMin, int dataMax, Canvas canvas)
-            {
-                int targetMax = (int)(canvas.ActualHeight - 10);
-                int targetMin = 5;
+        public static int MapRange(int val, int dataMin, int dataMax, Canvas canvas)
+        {
+            int targetMax = (int)(canvas.ActualHeight - 10);
+            int targetMin = 5;
 
-                // Map value into range of canvas size
-                return targetMin + (val - dataMin) * (targetMax - targetMin) / (dataMax - dataMin);
-            }
+            // Map value into range of canvas size
+            return targetMin + (val - dataMin) * (targetMax - targetMin) / (dataMax - dataMin);
+        }
     }
 }
